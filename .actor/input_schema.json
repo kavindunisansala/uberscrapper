@@ -1,20 +1,61 @@
 {
     "$schema": "https://apify.com/schemas/v1/input.ide.json",
-    "title": "Python Crawlee BeautifulSoup Scraper",
+    "title": "Nearest Open Restaurants & Food Ordering Apps Scraper",
     "type": "object",
     "schemaVersion": 1,
     "properties": {
-        "start_urls": {
-            "title": "Start URLs",
-            "type": "array",
-            "description": "URLs to start with",
-            "prefill": [
-                {
-                    "url": "https://apify.com"
-                }
-            ],
-            "editor": "requestListSources"
+        "location": {
+            "title": "Location / Address",
+            "type": "string",
+            "description": "Address, city, neighborhood, or landmark to search around (e.g., 'Times Square, New York', 'Indiranagar, Bangalore', 'SoHo, London').",
+            "prefill": "Times Square, New York, NY",
+            "default": "Times Square, New York, NY",
+            "editor": "textfield"
+        },
+        "latitude": {
+            "title": "Latitude",
+            "type": "number",
+            "description": "Optional exact GPS latitude. If provided with longitude, takes precedence over text location.",
+            "prefill": 40.7580,
+            "editor": "number"
+        },
+        "longitude": {
+            "title": "Longitude",
+            "type": "number",
+            "description": "Optional exact GPS longitude. If provided with latitude, takes precedence over text location.",
+            "prefill": -73.9855,
+            "editor": "number"
+        },
+        "only_open": {
+            "title": "Only Open Restaurants",
+            "type": "boolean",
+            "description": "If enabled, only currently open restaurants accepting orders will be returned.",
+            "default": true,
+            "editor": "checkbox"
+        },
+        "max_restaurants": {
+            "title": "Max Restaurants",
+            "type": "integer",
+            "description": "Maximum number of nearest restaurants to retrieve.",
+            "default": 20,
+            "minimum": 1,
+            "maximum": 200,
+            "editor": "number"
+        },
+        "detect_ordering_apps": {
+            "title": "Detect Supported Food Ordering Apps",
+            "type": "boolean",
+            "description": "Detect which food ordering platforms (Uber Eats, DoorDash, Grubhub, Postmates, Swiggy, Seamless, etc.) the restaurant is available on, and retrieve direct order links.",
+            "default": true,
+            "editor": "checkbox"
+        },
+        "search_query": {
+            "title": "Food / Cuisine Query (Optional)",
+            "type": "string",
+            "description": "Optional search term to filter by cuisine or dish (e.g. 'pizza', 'burger', 'sushi', 'indian').",
+            "default": "",
+            "editor": "textfield"
         }
     },
-    "required": ["start_urls"]
+    "required": ["location"]
 }

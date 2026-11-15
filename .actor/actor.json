@@ -1,14 +1,14 @@
 {
     "$schema": "https://apify.com/schemas/v1/actor.ide.json",
     "actorSpecification": 1,
-    "name": "getting-started-python-crawlee-beautifulsoup",
-    "title": "Getting started with Python Crawlee and BeautifulSoup",
-    "description": "Scrapes titles of websites using Crawlee and BeautifulSoup.",
-    "version": "0.0",
+    "name": "nearest-restaurants-food-apps-scraper",
+    "title": "Nearest Open Restaurants & Food Ordering Apps Scraper",
+    "description": "Finds nearest opened restaurants for any location or coordinates, their exact address and geolocations, and detects supported food ordering apps (Uber Eats, DoorDash, Grubhub, Postmates, Swiggy, etc.) with direct order links.",
+    "version": "0.1",
     "buildTag": "latest",
     "meta": {
         "templateId": "python-crawlee-beautifulsoup",
-        "generatedBy": "<FILL-IN-MODEL>"
+        "generatedBy": "Antigravity with Gemini 3.8 Flash"
     },
     "inputSchema": "./input_schema.json",
     "outputSchema": "./output_schema.json",

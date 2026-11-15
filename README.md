@@ -1,118 +1,128 @@
-# Python Crawlee & BeautifulSoup Actor Template
+# Nearest Open Restaurants & Food Ordering Apps Scraper
 
-<!-- This is an Apify template readme -->
+Find nearest currently open restaurants for any address, landmark, or coordinates, discover their exact locations and contact details, and detect which food ordering apps they support (Uber Eats, DoorDash, Grubhub, Postmates, Swiggy, Seamless, Deliveroo, etc.) with direct ordering links.
 
-This template example was built with [Crawlee for Python](https://crawlee.dev/python) to scrape data from a website using [Beautiful Soup](https://pypi.org/project/beautifulsoup4/) wrapped into [BeautifulSoupCrawler](https://crawlee.dev/python/api/class/BeautifulSoupCrawler).
+---
 
-## Quick Start
+## 🍽️ Features
 
-Once you've installed the dependencies, start the Actor:
+- 📍 **Automatic Geocoding**: Accepts any street address, city, landmark (e.g., `"Times Square, New York"`, `"Indiranagar, Bangalore"`, `"SoHo, London"`), or exact GPS coordinates (`latitude`, `longitude`).
+- 🟢 **Live Open Status Filtering**: Filters out closed restaurants and only returns establishments currently open and accepting orders.
+- 🛵 **Food Delivery Platform Detection**: Checks availability across major food ordering services:
+  - **Uber Eats**
+  - **DoorDash**
+  - **Grubhub**
+  - **Postmates**
+  - **Seamless**
+  - **Swiggy**
+  - **Zomato**
+  - **Deliveroo**
+  - **Just Eat**
+- 🔗 **Direct Order Links**: Extracts direct URLs to order from each supported app or store profile.
+- 🗺️ **Comprehensive Location Data**: Includes full street address, city, region, postal code, country, and precise latitude & longitude coordinates.
+- ⭐ **Store Details**: Retrieves customer ratings, review counts, cuisines, estimated delivery / ETD times, price range, and phone numbers.
+- 🌍 **Global Coverage**: Built to work worldwide across North America, Europe, Asia-Pacific, India, and Latin America.
 
-```bash
-apify run
+---
+
+## 📥 Input Parameters
+
+| Parameter | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `location` | `string` | **Yes** | `"Times Square, New York, NY"` | Address, city, neighborhood, or landmark to search around. |
+| `latitude` | `number` | No | *auto-geocoded* | Optional exact GPS latitude. Overrides text location geocoding if provided with longitude. |
+| `longitude` | `number` | No | *auto-geocoded* | Optional exact GPS longitude. Overrides text location geocoding if provided with latitude. |
+| `only_open` | `boolean` | No | `true` | When `true`, filters out closed venues and only returns restaurants open right now. |
+| `max_restaurants` | `integer` | No | `20` | Maximum number of restaurants to return (1 - 200). |
+| `detect_ordering_apps` | `boolean` | No | `true` | Scans search listings to find which ordering apps support the venue and grabs direct URLs. |
+| `search_query` | `string` | No | `""` | Optional filter for cuisine or food item (e.g. `"pizza"`, `"sushi"`, `"burgers"`). |
+
+### Example Input JSON
+
+```json
+{
+  "location": "Times Square, New York, NY",
+  "only_open": true,
+  "max_restaurants": 20,
+  "detect_ordering_apps": true,
+  "search_query": ""
+}
 ```
 
-Once your Actor is ready, you can push it to the Apify Console:
+---
+
+## 📤 Output Dataset Format
+
+Each scraped restaurant is stored as a JSON record in the default dataset.
+
+### Example Output Item
+
+```json
+{
+  "name": "Joe's Pizza",
+  "is_open": true,
+  "status_text": "Open now • Accepting orders",
+  "supported_apps": [
+    "Uber Eats",
+    "Postmates"
+  ],
+  "ordering_links": {
+    "Uber Eats": "https://www.ubereats.com/store/joes-pizza-times-square-1435-broadway/F9A-B2bKRg-ikAd0B8uzgg"
+  },
+  "address": "1435 Broadway, New York, NY 10018",
+  "street_address": "1435 Broadway",
+  "city": "New York",
+  "state_region": "NY",
+  "postal_code": "10018",
+  "country": "US",
+  "latitude": 40.7547,
+  "longitude": -73.9868,
+  "distance_or_delivery_time": "30 min",
+  "rating": 4.6,
+  "rating_count": "15,000+",
+  "cuisines": [
+    "Pizza",
+    "American",
+    "Italian",
+    "Group Friendly"
+  ],
+  "price_range": "$$",
+  "phone_number": "+16465594878",
+  "primary_source": "Uber Eats",
+  "primary_url": "https://www.ubereats.com/store/joes-pizza-times-square-1435-broadway/F9A-B2bKRg-ikAd0B8uzgg",
+  "scraped_at": "2026-11-15T07:24:59.177125+00:00"
+}
+```
+
+---
+
+## 🚀 Running Locally
+
+### Option 1: Standalone Python
+You can run the scraper directly using Python without needing the Apify CLI or Docker:
 
 ```bash
-apify login # first, you need to log in if you haven't already done so
+python -m my_actor
+```
+Input will be read from `storage/key_value_stores/default/INPUT.json` and results saved to `storage/datasets/default/`.
 
+### Option 2: Apify CLI
+When developing inside the Apify SDK ecosystem:
+
+```bash
+# Test run locally
+apify run
+
+# Validate schemas
+apify validate-schema
+```
+
+---
+
+## ☁️ Deployment
+
+Deploy to the Apify platform using the Apify CLI:
+
+```bash
 apify push
 ```
-
-## Project Structure
-
-```text
-.actor/
-├── actor.json # Actor config: name, version, env vars, runtime settings
-├── dataset_schema.json # Structure and representation of data produced by an Actor
-├── input_schema.json # Input validation & Console form definition
-└── output_schema.json # Specifies where an Actor stores its output
-src/
-└── main.py # Actor entry point and orchestrator
-storage/ # Local storage (mirrors Cloud during development)
-├── datasets/ # Output items (JSON objects)
-├── key_value_stores/ # Files, config, INPUT
-└── request_queues/ # Pending crawl requests
-Dockerfile # Container image definition
-```
-
-For more information, see the [Actor definition](https://docs.apify.com/platform/actors/development/actor-definition) documentation.
-
-## How it works
-
-This code is a Python script that uses BeautifulSoup to scrape data from a website. It then stores the website titles in a dataset.
-
-- The crawler starts with URLs provided from the input `startUrls` field defined by the input schema. Number of scraped pages is limited by `maxPagesPerCrawl` field from the input schema.
-- The crawler uses `requestHandler` for each URL to extract the data from the page with the BeautifulSoup library and to save the title and URL of each page to the dataset. It also logs out each result that is being saved.
-
-## What's included
-
-- **[Apify SDK](https://docs.apify.com/sdk/python/)** - toolkit for building [Actors](https://apify.com/actors)
-- **[Crawlee for Python](https://crawlee.dev/python/)** - web scraping and browser automation library
-- **[Input schema](https://docs.apify.com/platform/actors/development/input-schema)** - define and easily validate a schema for your Actor's input
-- **[Dataset](https://docs.apify.com/sdk/python/docs/concepts/storages#working-with-datasets)** - store structured data where each object stored has the same attributes
-- **[Beautiful Soup](https://pypi.org/project/beautifulsoup4/)** - a library for pulling data out of HTML and XML files
-- **[Proxy configuration](https://docs.apify.com/platform/proxy)** - rotate IP addresses to prevent blocking
-
-## Resources
-
-- [Quick Start](https://docs.apify.com/platform/actors/development/quick-start) guide for building your first Actor
-- [Video introduction to Python SDK](https://www.youtube.com/watch?v=C8DmvJQS3jk)
-- [Webinar introducing to Crawlee for Python](https://www.youtube.com/live/ip8Ii0eLfRY)
-- [Apify Python SDK documentation](https://docs.apify.com/sdk/python/)
-- [Crawlee for Python documentation](https://crawlee.dev/python/docs/quick-start)
-- [Python tutorials in Academy](https://docs.apify.com/academy/python)
-- [Integration with Zapier](https://apify.com/integrations), Make, Google Drive and others
-- [Video guide on getting data using Apify API](https://www.youtube.com/watch?v=ViYYDHSBAKM)
-
-## Creating Actors with templates
-
-[How to create Apify Actors with web scraping code templates](https://www.youtube.com/watch?v=u-i-Korzf8w)
-
-
-## Getting started
-
-For complete information [see this article](https://docs.apify.com/platform/actors/development#build-actor-at-apify-console). In short, you will:
-
-1. Build the Actor
-2. Run the Actor
-
-## Pull the Actor for local development
-
-If you would like to develop locally, you can pull the existing Actor from Apify console using Apify CLI:
-
-1. Install `apify-cli`
-
-    **Using Homebrew**
-
-    ```bash
-    brew install apify-cli
-    ```
-
-    **Using NPM**
-
-    ```bash
-    npm -g install apify-cli
-    ```
-
-2. Pull the Actor by its unique `<ActorId>`, which is one of the following:
-    - unique name of the Actor to pull (e.g. "apify/hello-world")
-    - or ID of the Actor to pull (e.g. "E2jjCZBezvAZnX8Rb")
-
-    You can find both by clicking on the Actor title at the top of the page, which will open a modal containing both Actor unique name and Actor ID.
-
-    This command will copy the Actor into the current directory on your local machine.
-
-    ```bash
-    apify pull <ActorId>
-    ```
-
-## Documentation reference
-
-To learn more about Apify and Actors, take a look at the following resources:
-
-- [Apify SDK for JavaScript documentation](https://docs.apify.com/sdk/js)
-- [Apify SDK for Python documentation](https://docs.apify.com/sdk/python)
-- [Apify Platform documentation](https://docs.apify.com/platform)
-- [Join our developer community on Discord](https://discord.com/invite/jyEM2PRvMU)
